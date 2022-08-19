@@ -8,16 +8,19 @@ jobs = []
 
 pages_url = f'{base_url}/mav-csoport/allasajanlataink'
 pages_response = requests.get(pages_url)
-doc = BeautifulSoup(pages_response.text, 'html.parser')
-number_of_pages = doc.find(class_='pager-last').a['href'].split('page=')
+pages_doc = BeautifulSoup(pages_response.text, 'html.parser')
+last_page = pages_doc.find(class_='pager-last').a['href'].split('page=')[1]
+number_of_pages = int(last_page) + 1
 
-for page in range(0, number_of_pages[1] + 1):
+for page in range(0, number_of_pages):
     if page != 0:
         pagination = f'?page={page}'
     url = f'{base_url}/mav-csoport/allasajanlataink{pagination}'
+    print(f'Requesting url: {url}')
     response = requests.get(url)
     doc = BeautifulSoup(response.text, 'html.parser')
     parents = doc.find_all(class_='views-row')
+    print(f'Number of jobs: {len(parents)}')
     for parent in parents:
         company = parent.find(class_='field-job-company').string.strip()
         expiration_date = parent.find(class_='field-job-expiration-date').string.strip()
