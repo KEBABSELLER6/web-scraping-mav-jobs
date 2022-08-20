@@ -2,20 +2,18 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 
-base_url = 'https://www.mavcsoport.hu'
+base_url = 'https://www.mavcsoport.hu/mav-csoport/allasajanlataink'
 pagination = ''
 jobs = []
 
-pages_url = f'{base_url}/mav-csoport/allasajanlataink'
-pages_response = requests.get(pages_url)
+pages_response = requests.get(base_url)
 pages_doc = BeautifulSoup(pages_response.text, 'html.parser')
 last_page = pages_doc.find(class_='pager-last').a['href'].split('page=')[1]
-number_of_pages = int(last_page) + 1
+number_of_pages = int(last_page)
 
-for page in range(0, number_of_pages):
-    if page != 0:
-        pagination = f'?page={page}'
-    url = f'{base_url}/mav-csoport/allasajanlataink{pagination}'
+for page in range(0, number_of_pages + 1):
+    pagination = f'?page={page}'
+    url = f'{base_url}{pagination}'
     print(f'Requesting url: {url}')
     response = requests.get(url)
     doc = BeautifulSoup(response.text, 'html.parser')
@@ -32,6 +30,6 @@ for page in range(0, number_of_pages):
                'specialty': speciality, 'schedule': schedule}
         jobs.append(job)
 
-df = pd.json_normalize(jobs)
+df = pd.DataFrame(jobs)
 
 df.to_csv('results.csv')
