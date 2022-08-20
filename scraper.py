@@ -1,6 +1,6 @@
+import pandas as pd
 from bs4 import BeautifulSoup
 import requests
-import json
 
 base_url = 'https://www.mavcsoport.hu'
 pagination = ''
@@ -32,9 +32,6 @@ for page in range(0, number_of_pages):
                'specialty': speciality, 'schedule': schedule}
         jobs.append(job)
 
-print(len(jobs))
+df = pd.json_normalize(jobs)
 
-json_object = json.dumps(jobs, indent=4)
-
-with open('results.json', 'w') as outfile:
-    outfile.write(json_object)
+df.to_csv('results.csv')
